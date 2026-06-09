@@ -1,0 +1,14 @@
+{
+  "name": "copyright-guard-ipfs",
+  "version": "1.0.0",
+  "description": "链创守护 - IPFS存储服务模块",
+  "main": "upload.js",
+  "scripts": {
+    "upload": "node upload.js upload",
+    "get": "node upload.js get",
+    "gateway": "node upload.js gateway"
+  },
+  "dependencies": {
+    "ipfs-http-client": "^60.0.0"
+  }
+}

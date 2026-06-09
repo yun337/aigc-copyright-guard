@@ -1,0 +1,127 @@
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: copyright-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-root}
+      MYSQL_DATABASE: copyright_guard
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../backend/sql:/docker-entrypoint-initdb.d
+    networks:
+      - copyright-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: copyright-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - copyright-network
+    command: redis-server --appendonly yes
+
+  # Spring Boot后端
+  backend:
+    build: ../backend
+    container_name: copyright-backend
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/copyright_guard?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-root}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      ETH_RPC_URL: http://hardhat-node:8545
+      ETH_CHAIN_ID: "1337"
+      ETH_PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+      COPYRIGHT_REGISTRY_ADDR: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      COPYRIGHT_NFT_ADDR: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      AUTHORIZATION_MANAGER_ADDR: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      SPRING_REDIS_HOST: redis
+      AI_SERVICE_URL: http://ai-service:5000
+      IPFS_HOST: ${IPFS_HOST:-ipfs}
+      IPFS_PORT: ${IPFS_PORT:-5001}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - copyright-network
+
+  # Flask AI服务
+  ai-service:
+    build: ../ai-service
+    container_name: copyright-ai
+    ports:
+      - "5000:5000"
+    environment:
+      AI_SERVICE_PORT: "5000"
+      AI_SERVICE_DEBUG: "false"
+    networks:
+      - copyright-network
+
+  # IPFS节点
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: copyright-ipfs
+    ports:
+      - "4001:4001"  # swarm
+      - "5001:5001"  # API
+      - "8081:8080"  # Gateway
+    volumes:
+      - ipfs_data:/data/ipfs
+    environment:
+      IPFS_PROFILE: server
+    networks:
+      - copyright-network
+    command: >
+      daemon --migrate=true --init-profile=server
+
+  # Vue3前端 (Nginx)
+  frontend:
+    build: ../frontend
+    container_name: copyright-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - copyright-network
+
+  # Hardhat本地链 (开发环境)
+  hardhat-node:
+    image: node:20-alpine
+    container_name: copyright-hardhat
+    working_dir: /app
+    volumes:
+      - ../contracts:/app
+    ports:
+      - "8545:8545"
+    networks:
+      - copyright-network
+    command: >
+      sh -c "npm install --legacy-peer-deps && npx hardhat node --hostname 0.0.0.0"
+    profiles:
+      - dev
+
+volumes:
+  mysql_data:
+  redis_data:
+  ipfs_data:
+
+networks:
+  copyright-network:
+    driver: bridge

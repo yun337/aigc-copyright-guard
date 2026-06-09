@@ -1,0 +1,11 @@
+{
+  "name": "copyright-guard-contracts",
+  "version": "1.0.0",
+  "description": "链创守护 - 智能合约",
+  "devDependencies": {
+    "@openzeppelin/contracts": "^4.9.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.0",
+    "ethers": "^6.9.0",
+    "hardhat": "^2.19.0"
+  }
+}

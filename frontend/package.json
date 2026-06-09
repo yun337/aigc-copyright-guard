@@ -1,0 +1,29 @@
+{
+  "name": "copyright-guard-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "链创守护 - AIGC作品版权保护平台前端DApp",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix"
+  },
+  "dependencies": {
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.5",
+    "pinia": "^2.1.7",
+    "element-plus": "^2.4.4",
+    "axios": "^1.6.2",
+    "ethers": "^6.9.0",
+    "@element-plus/icons-vue": "^2.3.1",
+    "crypto-js": "^4.2.0",
+    "jspdf": "^2.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.2",
+    "vite": "^5.0.10",
+    "eslint": "^8.55.0",
+    "eslint-plugin-vue": "^9.19.2"
+  }
+}

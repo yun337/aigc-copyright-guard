@@ -1,0 +1,108 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: copyright-guard-backend
+
+  # MySQL 数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/copyright_guard?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: ${MYSQL_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+
+  # Redis 配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 10
+          max-idle: 5
+          min-idle: 2
+
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
+  # Jackson 配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+
+# JWT 配置
+jwt:
+  secret: ${JWT_SECRET:copyright-guard-jwt-secret-key-must-be-at-least-256-bits-long-for-hs256}
+  expiration: 86400000  # 24小时
+  refresh-expiration: 604800000  # 7天
+
+# 区块链配置
+blockchain:
+  ethereum:
+    rpc-url: ${ETH_RPC_URL:http://localhost:8545}
+    chain-id: ${ETH_CHAIN_ID:1337}
+    private-key: ${ETH_PRIVATE_KEY:}
+    gas-limit: 3000000
+    gas-price: 20000000000
+  contracts:
+    copyright-registry: ${COPYRIGHT_REGISTRY_ADDR:}
+    copyright-nft: ${COPYRIGHT_NFT_ADDR:}
+    authorization-manager: ${AUTHORIZATION_MANAGER_ADDR:}
+
+# IPFS 配置
+ipfs:
+  host: ${IPFS_HOST:localhost}
+  port: ${IPFS_PORT:5001}
+  gateway: ${IPFS_GATEWAY:http://localhost:8080}
+
+# AI 侵权检测服务配置
+ai:
+  detection:
+    url: ${AI_SERVICE_URL:http://localhost:5000}
+    similarity-threshold: 0.85  # 相似度阈值
+    max-results: 20
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.copyright: DEBUG
+    org.springframework.security: INFO
+  file:
+    path: ./logs
+    name: copyright-guard.log
+
+# Swagger/OpenAPI 配置
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
