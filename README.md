@@ -1,5 +1,3 @@
-# aigc-copyright-guard
-# aigc-copyright-guard
 # CopyrightGuard - 链创守护
 
 基于以太坊区块链的 **AIGC 作品版权保护平台**，提供版权存证 → NFT 铸造 → AI 侵权检测 → 授权交易全链路保护。
